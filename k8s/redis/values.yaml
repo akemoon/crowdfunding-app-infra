@@ -1,0 +1,17 @@
+architecture: standalone  # only master service
+
+auth:
+  enabled: true
+  existingSecret: redis-secrets
+  existingSecretPasswordKey: REDIS_PASSWORD
+
+master:
+  persistence:
+    enabled: false  # temporary
+
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    additionalLabels:
+      release: kube-prom-stack

@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user
+  template:
+    metadata:
+      labels:
+        app: user
+    spec:
+      containers:
+        - name: user
+          image: crowdfunding-app-user:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          env:
+            - name: POSTGRES_URL
+              valueFrom:
+                secretKeyRef:
+                  name: pg-secrets
+                  key: USER_DB_URL
+            - name: POSTGRES_MIGRATIONS_DIR
+              value: /app/migrations/postgres
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: redis-secrets
+                  key: REDIS_URL
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: user-secrets
+                  key: JWT_SECRET
+            - name: AVATARS_BASE_URL
+              value: http://minio:9000/avatars
+            - name: KAFKA_BROKERS
+              value: my-cluster-kafka-bootstrap:9092
+            - name: USER_TOPIC
+              value: user

@@ -1,0 +1,161 @@
+http:
+  middlewares:
+    cors:
+      headers:
+        accessControlAllowOriginList:
+          - "http://localhost:5173"  # dev frontend
+          - "http://app.local"
+        accessControlAllowMethods:
+          - GET
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+          - OPTIONS
+        accessControlAllowHeaders:
+          - Content-Type
+          - Authorization
+        accessControlMaxAge: 600
+        addVaryHeader: true
+
+    strip-user-headers:
+      headers:
+        customRequestHeaders:
+          X-User-ID: ""
+          X-User-Role: ""
+
+    auth-required:
+      forwardAuth:
+        address: "http://user:80/check?optional=false"
+        authResponseHeaders:
+          - X-User-ID
+          - X-User-Role
+    auth-optional:
+      forwardAuth:
+        address: "http://user:80/check?optional=true"
+        authResponseHeaders:
+          - X-User-ID
+          - X-User-Role
+
+    auth-required-chain:
+      chain:
+        middlewares:
+          - cors
+          - strip-user-headers
+          - auth-required
+    auth-optional-chain:
+      chain:
+        middlewares:
+          - cors
+          - strip-user-headers
+          - auth-optional
+
+  services:
+    noop-svc:
+      loadBalancer:
+        servers:
+          - url: "http://noop:80"
+
+    user-svc:
+      loadBalancer:
+        servers:
+          - url: "http://user:80"
+    
+    project-svc:
+      loadBalancer:
+        servers:
+          - url: http://project:80
+    
+    payment-svc:
+      loadBalancer:
+        servers:
+          - url: http://payment:80
+
+  routers:
+    # OPTIONS preflight
+    options:
+      rule: "Host(`api.app.local`) && Method(`OPTIONS`)"
+      middlewares: [cors]
+      service: noop-svc
+      priority: 100
+
+    # User service
+
+    signin:
+      rule: "Host(`api.app.local`) && Path(`/signin`) && Method(`POST`)"
+      middlewares: [cors]
+      service: user-svc
+
+    signup:
+      rule: "Host(`api.app.local`) && Path(`/signup`) && Method(`POST`)"
+      middlewares: [cors]
+      service: user-svc
+
+    signout:
+      rule: "Host(`api.app.local`) && Path(`/signout`) && Method(`POST`)"
+      middlewares: [cors]
+      service: user-svc
+
+    refresh:
+      rule: "Host(`api.app.local`) && Path(`/refresh`) && Method(`POST`)"
+      middlewares: [cors]
+      service: user-svc
+
+    users:
+      rule: "Host(`api.app.local`) && PathRegexp(`^/users/[0-9a-f-]{36}$`) && Method(`GET`)"
+      middlewares: [cors]
+      service: user-svc
+
+    usersMe:
+      rule: "Host(`api.app.local`) && Path(`/users/me`) && Method(`GET`)"
+      middlewares: [auth-required-chain]
+      service: user-svc
+
+    updateProfile:
+      rule: "Host(`api.app.local`) && Path(`/users/me/profile`) && Method(`PATCH`)"
+      middlewares: [auth-required-chain]
+      service: user-svc
+
+    follow:
+      rule: "Host(`api.app.local`) && PathRegexp(`^/users/[0-9a-f-]{36}/follow$`) && Method(`POST`, `DELETE`)"
+      middlewares: [auth-required-chain]
+      service: user-svc
+
+    # Payment service
+
+    payments:
+      rule: "Host(`api.app.local`) && PathPrefix(`/payments`)"
+      middlewares: [auth-required-chain]
+      service: payment-svc
+
+    # Project service
+
+    getProjects:
+      rule: "Host(`api.app.local`) && Path(`/projects`) && Method(`GET`)"
+      middlewares: [cors]
+      service: project-svc
+    
+    getMyProjects:
+      rule: "Host(`api.app.local`) && Path(`/projects/user`) && Method(`GET`)"
+      middlewares: [auth-required-chain]
+      service: project-svc
+
+    getUserProjects:
+      rule: "Host(`api.app.local`) && PathRegexp(`^/projects/user/[0-9a-f-]{36}$`) && Method(`GET`)"
+      middlewares: [cors]
+      service: project-svc
+
+    getProjectByID:
+      rule: "Host(`api.app.local`) && PathRegexp(`^/projects/[0-9a-f-]{36}$`) && Method(`GET`)"
+      middlewares: [auth-optional-chain]
+      service: project-svc
+
+    projectsPost:
+      rule: "Host(`api.app.local`) && PathPrefix(`/projects`) && Method(`POST`)"
+      middlewares: [auth-required-chain]
+      service: project-svc
+
+    applications:
+      rule: "Host(`api.app.local`) && PathPrefix(`/applications`)"
+      middlewares: [auth-required-chain]
+      service: project-svc

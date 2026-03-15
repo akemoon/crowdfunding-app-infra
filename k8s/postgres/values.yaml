@@ -1,0 +1,24 @@
+auth:
+  username: app
+  existingSecret: pg-secrets
+  secretKeys:
+    adminPasswordKey: POSTGRES_PASSWORD
+    userPasswordKey: POSTGRES_PASSWORD
+
+primary:
+  persistence:
+    enabled: false  # temporary
+  initdb:
+    scripts:
+      create-dbs.sql: |
+        create database users_db;
+        create database projects_db;
+        create database payments_db;
+        create database promocodes_db;
+
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    labels:
+      release: kube-prom-stack

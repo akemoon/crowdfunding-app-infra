@@ -1,0 +1,12 @@
+image:
+  tag: latest
+
+auth:
+  existingSecret: minio-secrets
+  rootUserSecretKey: root-user
+  rootPasswordSecretKey: root-password
+
+persistence:
+  enabled: false  # temporary
+
+defaultBuckets: "avatars"

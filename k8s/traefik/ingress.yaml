@@ -1,0 +1,143 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: strip-user-header
+  namespace: default
+spec:
+  headers:
+    customRequestHeaders:
+      X-User-Id: ""
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: auth-check
+  namespace: default
+spec:
+  forwardAuth:
+    address: http://auth-svc.default.svc.cluster.local:80/check
+    trustForwardHeader: true
+    authResponseHeaders:
+      - X-User-Id
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: cors
+  namespace: default
+spec:
+  headers:
+    accessControlAllowOriginList:
+      - "http://app.local"
+      - "http://localhost:5175"
+    accessControlAllowMethods:
+      - "GET"
+      - "POST"
+      - "PUT"
+      - "PATCH"
+      - "DELETE"
+      - "OPTIONS"
+    accessControlAllowHeaders:
+      - "Content-Type"
+      - "Authorization"
+    accessControlMaxAge: 600
+    addVaryHeader: true
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: auth-chain
+  namespace: default
+spec:
+  chain:
+    middlewares:
+      - name: cors
+      - name: strip-user-header
+      - name: auth-check
+---
+apiVersion: traefik.io/v1alpha1
+kind: TraefikService
+metadata:
+  name: noop
+  namespace: default
+spec:
+  weighted:
+    services:
+      - name: noop@internal
+        kind: TraefikService
+        weight: 1
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: api
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`api.app.local`) && Method(`OPTIONS`)
+      kind: Rule
+      middlewares:
+        - name: cors
+      services:
+        - name: noop
+          kind: TraefikService
+
+    - match: Host(`api.app.local`) && Path(`/signin`)
+      kind: Rule
+      middlewares:
+        - name: cors
+      services:
+        - name: auth-svc
+          port: 80
+
+    - match: Host(`api.app.local`) && Path(`/signup`)
+      kind: Rule
+      middlewares:
+        - name: cors
+      services:
+        - name: auth-svc
+          port: 80
+
+    - match: Host(`api.app.local`) && Path(`/signout`)
+      kind: Rule
+      middlewares:
+        - name: auth-chain
+      services:
+        - name: auth-svc
+          port: 80
+
+    - match: Host(`api.app.local`) && Path(`/check`)
+      kind: Rule
+      middlewares:
+        - name: cors
+      services:
+        - name: auth-svc
+          port: 80
+
+    - match: Host(`api.app.local`) && Path(`/user/me`)
+      kind: Rule
+      middlewares:
+        - name: auth-chain
+      services:
+        - name: user-svc
+          port: 80
+
+    - match: Host(`api.app.local`) && PathPrefix(`/project`) && Method(`GET`)
+      kind: Rule
+      middlewares:
+        - name: cors
+      services:
+        - name: project-svc
+          port: 80
+
+    - match: Host(`api.app.local`) && PathPrefix(`/project`) && Method(`POST`)
+      kind: Rule
+      middlewares:
+        - name: auth-chain
+      services:
+        - name: project-svc
+          port: 80

@@ -1,0 +1,23 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: project
+    static_configs:
+      - targets: [project:80]
+    metrics_path: /metrics
+
+  - job_name: user
+    static_configs:
+      - targets: [user:80]
+    metrics_path: /metrics
+
+  - job_name: promo
+    static_configs:
+      - targets: [promo:80]
+    metrics_path: /metrics
+
+  - job_name: payment
+    static_configs:
+      - targets: [payment:80]
+    metrics_path: /metrics
