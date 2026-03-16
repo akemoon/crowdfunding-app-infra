@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: noop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: noop
+  template:
+    metadata:
+      labels:
+        app: noop
+    spec:
+      containers:
+        - name: noop
+          image: traefik/whoami:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 50m
+              memory: 32Mi

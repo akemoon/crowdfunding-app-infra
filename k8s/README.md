@@ -91,7 +91,7 @@ helm install console redpanda/console -f k8s/kafka/console-values.yaml -n kafka
 
 kubectl apply -f k8s/minio/secrets.yaml
 
-helm install minio bitnami/minio -f k8s/minio/values.yaml
+helm install minio bitnami/minio --version 17.0.4 -f k8s/minio/values.yaml
 
 kubectl apply -f k8s/minio/init-job.yaml
 ```

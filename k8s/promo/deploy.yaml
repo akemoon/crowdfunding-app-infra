@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: project
+  name: promo
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: project
+      app: promo
   template:
     metadata:
       labels:
-        app: project
+        app: promo
     spec:
       containers:
-        - name: project
-          image: crowdfunding-app-project:latest
+        - name: promo
+          image: crowdfunding-app-promo:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
@@ -26,20 +26,16 @@ spec:
               cpu: 500m
               memory: 512Mi
           env:
-            - name: POSTGRES_DSN
+            - name: POSTGRES_URL
               valueFrom:
                 secretKeyRef:
                   name: pg-secrets
-                  key: PROJECT_DB_URL
+                  key: PROMO_DB_URL
             - name: POSTGRES_MIGRATIONS_DIR
               value: /app/migrations/postgres
             - name: KAFKA_BROKERS
               value: my-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092
-            - name: PROJECT_TOPIC
-              value: project
-            - name: CONTRIBUTION_TOPIC
-              value: contribution
-            - name: CONTRIBUTION_CONSUMER_GROUP
-              value: project
-            - name: PROMO_BASE_URL
-              value: http://promo-svc
+            - name: USER_TOPIC
+              value: user
+            - name: USER_GROUP_ID
+              value: promo

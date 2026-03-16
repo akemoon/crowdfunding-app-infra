@@ -26,13 +26,13 @@ http:
 
     auth-required:
       forwardAuth:
-        address: "http://user:80/check?optional=false"
+        address: "http://user:80/auth/check?optional=false"
         authResponseHeaders:
           - X-User-ID
           - X-User-Role
     auth-optional:
       forwardAuth:
-        address: "http://user:80/check?optional=true"
+        address: "http://user:80/auth/check?optional=true"
         authResponseHeaders:
           - X-User-ID
           - X-User-Role
@@ -82,22 +82,22 @@ http:
     # User service
 
     signin:
-      rule: "Host(`api.app.local`) && Path(`/signin`) && Method(`POST`)"
+      rule: "Host(`api.app.local`) && Path(`/auth/signin`) && Method(`POST`)"
       middlewares: [cors]
       service: user-svc
 
     signup:
-      rule: "Host(`api.app.local`) && Path(`/signup`) && Method(`POST`)"
+      rule: "Host(`api.app.local`) && Path(`/auth/signup`) && Method(`POST`)"
       middlewares: [cors]
       service: user-svc
 
     signout:
-      rule: "Host(`api.app.local`) && Path(`/signout`) && Method(`POST`)"
+      rule: "Host(`api.app.local`) && Path(`/auth/signout`) && Method(`POST`)"
       middlewares: [cors]
       service: user-svc
 
     refresh:
-      rule: "Host(`api.app.local`) && Path(`/refresh`) && Method(`POST`)"
+      rule: "Host(`api.app.local`) && Path(`/auth/refresh`) && Method(`POST`)"
       middlewares: [cors]
       service: user-svc
 

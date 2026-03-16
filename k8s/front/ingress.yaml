@@ -1,0 +1,14 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: front
+  namespace: default
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`front.app.local`)
+      kind: Rule
+      services:
+        - name: front
+          port: 80

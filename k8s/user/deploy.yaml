@@ -44,8 +44,8 @@ spec:
                   name: user-secrets
                   key: JWT_SECRET
             - name: AVATARS_BASE_URL
-              value: http://minio:9000/avatars
+              value: http://img.app.local/avatars
             - name: KAFKA_BROKERS
-              value: my-cluster-kafka-bootstrap:9092
+              value: my-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092
             - name: USER_TOPIC
               value: user
