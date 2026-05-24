@@ -15,12 +15,12 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: minio-secrets
-                  key: root-user
+                  key: MINIO_ACCESS_KEY
             - name: MINIO_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: minio-secrets
-                  key: root-password
+                  key: MINIO_SECRET_KEY
           command:
             - /bin/sh
             - -c

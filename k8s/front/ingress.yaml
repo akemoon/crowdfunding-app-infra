@@ -5,7 +5,9 @@ metadata:
   namespace: default
 spec:
   entryPoints:
-    - web
+    - websecure
+  tls:
+    secretName: app-local-tls
   routes:
     - match: Host(`front.app.local`)
       kind: Rule

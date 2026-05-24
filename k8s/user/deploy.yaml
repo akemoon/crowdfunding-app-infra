@@ -20,11 +20,11 @@ spec:
             - containerPort: 80
           resources:
             requests:
-              cpu: 100m
-              memory: 128Mi
+              cpu: 50m
+              memory: 64Mi
             limits:
-              cpu: 500m
-              memory: 512Mi
+              cpu: 200m
+              memory: 256Mi
           env:
             - name: POSTGRES_URL
               valueFrom:
@@ -44,7 +44,7 @@ spec:
                   name: user-secrets
                   key: JWT_SECRET
             - name: AVATARS_BASE_URL
-              value: http://img.app.local/avatars
+              value: https://img.app.local/avatars
             - name: KAFKA_BROKERS
               value: my-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092
             - name: USER_TOPIC

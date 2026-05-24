@@ -7,6 +7,10 @@ kubectl create namespace monitoring
 helm install kube-prom-stack prometheus-community/kube-prometheus-stack -n monitoring
 ```
 
+```
+helm status -n monitoring kube-prom-stack
+```
+
 Create ingress:
 ```
 kubectl apply -f k8s/monitoring/ingress.yaml

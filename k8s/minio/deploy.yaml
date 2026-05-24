@@ -1,9 +1,10 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: minio
 spec:
   replicas: 1
+  serviceName: minio
   selector:
     matchLabels:
       app: minio
@@ -25,12 +26,12 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: minio-secrets
-                  key: root-user
+                  key: MINIO_ACCESS_KEY
             - name: MINIO_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: minio-secrets
-                  key: root-password
+                  key: MINIO_SECRET_KEY
           resources:
             requests:
               cpu: 100m
@@ -38,19 +39,3 @@ spec:
             limits:
               cpu: 500m
               memory: 512Mi
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: minio
-spec:
-  selector:
-    app: minio
-  ports:
-    - name: api
-      port: 9000
-      targetPort: 9000
-    - name: console
-      port: 9001
-      targetPort: 9001
-  type: ClusterIP

@@ -1,13 +1,18 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: user-svc-monitor
+  name: app-svc-monitor
   labels:
     release: kube-prom-stack
 spec:
+  namespaceSelector:
+    matchNames:
+      - default
   selector:
-    matchLabels:
-      app: user
+    matchExpressions:
+      - key: app
+        operator: In
+        values: [user, project, payment, promo]
   endpoints:
     - targetPort: 80
       path: /metrics

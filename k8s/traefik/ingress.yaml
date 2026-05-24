@@ -6,7 +6,7 @@ metadata:
 spec:
   headers:
     accessControlAllowOriginList:
-      - "http://front.app.local"
+      - "https://front.app.local"
     accessControlAllowMethods:
       - "GET"
       - "POST"
@@ -86,7 +86,9 @@ metadata:
   namespace: default
 spec:
   entryPoints:
-    - web
+    - websecure
+  tls:
+    secretName: app-local-tls
   routes:
     # OPTIONS preflight
     - match: Host(`api.app.local`) && Method(`OPTIONS`)
@@ -140,6 +142,14 @@ spec:
           port: 80
 
     # User service - auth required
+    - match: Host(`api.app.local`) && Path(`/auth/me`) && Method(`GET`)
+      kind: Rule
+      middlewares:
+        - name: auth-required-chain
+      services:
+        - name: user-svc
+          port: 80
+
     - match: Host(`api.app.local`) && Path(`/users/me`) && Method(`GET`)
       kind: Rule
       middlewares:
@@ -157,6 +167,38 @@ spec:
           port: 80
 
     - match: Host(`api.app.local`) && PathRegexp(`^/users/[0-9a-f-]{36}/follow$`) && (Method(`POST`) || Method(`DELETE`))
+      kind: Rule
+      middlewares:
+        - name: auth-required-chain
+      services:
+        - name: user-svc
+          port: 80
+
+    - match: Host(`api.app.local`) && Path(`/users/search`) && Method(`GET`)
+      kind: Rule
+      middlewares:
+        - name: auth-required-chain
+      services:
+        - name: user-svc
+          port: 80
+
+    - match: Host(`api.app.local`) && PathRegexp(`^/auth/users/[0-9a-f-]{36}$`) && Method(`GET`)
+      kind: Rule
+      middlewares:
+        - name: auth-required-chain
+      services:
+        - name: user-svc
+          port: 80
+
+    - match: Host(`api.app.local`) && PathRegexp(`^/auth/users/[0-9a-f-]{36}/role$`) && Method(`PATCH`)
+      kind: Rule
+      middlewares:
+        - name: auth-required-chain
+      services:
+        - name: user-svc
+          port: 80
+
+    - match: Host(`api.app.local`) && PathRegexp(`^/auth/users/[0-9a-f-]{36}/blocked$`) && Method(`PATCH`)
       kind: Rule
       middlewares:
         - name: auth-required-chain
@@ -230,4 +272,29 @@ spec:
         - name: auth-required-chain
       services:
         - name: project-svc
+          port: 80
+
+    - match: Host(`api.app.local`) && PathRegexp(`^/projects/[0-9a-f-]{36}$`) && Method(`PUT`)
+      kind: Rule
+      middlewares:
+        - name: auth-required-chain
+      services:
+        - name: project-svc
+          port: 80
+
+    - match: Host(`api.app.local`) && PathRegexp(`^/projects/[0-9a-f-]{36}/images/[0-9a-f-]{36}$`) && Method(`DELETE`)
+      kind: Rule
+      middlewares:
+        - name: auth-required-chain
+      services:
+        - name: project-svc
+          port: 80
+
+    # Promo service
+    - match: Host(`api.app.local`) && Path(`/promocodes`) && Method(`GET`)
+      kind: Rule
+      middlewares:
+        - name: auth-required-chain
+      services:
+        - name: promo-svc
           port: 80

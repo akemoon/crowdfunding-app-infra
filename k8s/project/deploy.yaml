@@ -20,11 +20,11 @@ spec:
             - containerPort: 80
           resources:
             requests:
-              cpu: 100m
-              memory: 128Mi
+              cpu: 50m
+              memory: 64Mi
             limits:
-              cpu: 500m
-              memory: 512Mi
+              cpu: 200m
+              memory: 256Mi
           env:
             - name: POSTGRES_DSN
               valueFrom:
@@ -43,3 +43,19 @@ spec:
               value: project
             - name: PROMO_BASE_URL
               value: http://promo-svc
+            - name: MINIO_ENDPOINT
+              value: minio:9000
+            - name: MINIO_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secrets
+                  key: MINIO_ACCESS_KEY
+            - name: MINIO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secrets
+                  key: MINIO_SECRET_KEY
+            - name: MINIO_BUCKET
+              value: projects
+            - name: MINIO_PUBLIC_URL
+              value: https://img.app.local

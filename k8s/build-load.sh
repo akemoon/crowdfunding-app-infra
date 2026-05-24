@@ -19,7 +19,7 @@ build_svc() {
 build_front() {
   echo "[BUILD] front -> crowdfunding-app-front:latest"
   docker build \
-    --build-arg PUBLIC_API_URL=http://api.app.local \
+    --build-arg PUBLIC_API_URL=https://api.app.local \
     -t crowdfunding-app-front:latest \
     "$APP_DIR/front"
   echo "[DEPLOY] restarting front"
@@ -33,7 +33,6 @@ build_minio_init() {
 
 ALL=(user project payment promo front minio-init)
 
-# если аргументы не переданы — собираем всё
 TARGETS=("${@:-${ALL[@]}}")
 
 echo "==> Building: ${TARGETS[*]}"
