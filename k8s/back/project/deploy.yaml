@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: project
+  namespace: back
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: project
+  template:
+    metadata:
+      labels:
+        app: project
+    spec:
+      containers:
+        - name: project
+          image: crowdfunding-app-project:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+          env:
+            - name: POSTGRES_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: pg-secrets
+                  key: PROJECT_DB_URL
+            - name: POSTGRES_MIGRATIONS_DIR
+              value: /app/migrations/postgres
+            - name: KAFKA_BROKERS
+              value: my-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092
+            - name: PROJECT_TOPIC
+              value: project
+            - name: CONTRIBUTION_TOPIC
+              value: contribution
+            - name: CONTRIBUTION_CONSUMER_GROUP
+              value: project
+            - name: PROMO_BASE_URL
+              value: http://promo-svc.back.svc.cluster.local
+            - name: MINIO_ENDPOINT
+              value: minio.data.svc.cluster.local:9000
+            - name: MINIO_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secrets
+                  key: MINIO_ACCESS_KEY
+            - name: MINIO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secrets
+                  key: MINIO_SECRET_KEY
+            - name: MINIO_BUCKET
+              value: projects
+            - name: MINIO_PUBLIC_URL
+              value: https://img.app.local

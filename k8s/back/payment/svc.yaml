@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment-svc
+  namespace: back
+  labels:
+    app: payment
+spec:
+  selector:
+    app: payment
+  ports:
+    - port: 80
+      targetPort: 80
+  type: ClusterIP

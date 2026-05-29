@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: front
-  namespace: front
+  name: pgadmin
+  namespace: data
 spec:
   selector:
-    app: front
+    app: pgadmin
   ports:
     - port: 80
-      targetPort: 3000
+      targetPort: 80
   type: ClusterIP

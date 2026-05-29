@@ -1,12 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: front
-  namespace: front
+  name: promo-svc
+  namespace: back
+  labels:
+    app: promo
 spec:
   selector:
-    app: front
+    app: promo
   ports:
     - port: 80
-      targetPort: 3000
+      targetPort: 80
   type: ClusterIP
