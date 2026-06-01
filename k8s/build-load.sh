@@ -13,7 +13,7 @@ build_svc() {
   echo "[BUILD] $svc -> $image"
   docker build -t "$image" "$APP_DIR/$svc"
   echo "[DEPLOY] restarting $svc"
-  kubectl delete pods -l app="$svc" 2>/dev/null || true
+  kubectl delete pods -l app="$svc" -n back 2>/dev/null || true
 }
 
 build_front() {
@@ -23,12 +23,12 @@ build_front() {
     -t crowdfunding-app-front:latest \
     "$APP_DIR/front"
   echo "[DEPLOY] restarting front"
-  kubectl delete pods -l app=front 2>/dev/null || true
+  kubectl delete pods -l app=front -n front 2>/dev/null || true
 }
 
 build_minio_init() {
   echo "[BUILD] minio-init"
-  docker build -t minio-init:latest "$INFRA_DIR/minio"
+  docker build -t minio-init:latest "$INFRA_DIR/data/minio"
 }
 
 ALL=(user project payment promo front minio-init)

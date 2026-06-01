@@ -30,3 +30,6 @@ spec:
               mc mb --ignore-existing local/avatars
               mc anonymous set download local/avatars
               mc cp /default-avatars/ local/avatars/defaults/ --recursive
+              mc mb --ignore-existing local/projects
+              mc anonymous set download local/projects
+              mc cp /test-covers/ local/projects/test-covers/ --recursive
